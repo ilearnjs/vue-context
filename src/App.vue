@@ -1,17 +1,33 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <div>
+      <button @click="changeOriginal">Change original</button>
+      <button @click="changeContext">Change context</button>
+    </div>
+    <Component1 :prop1="original" />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Component1 from './components/Component1'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    Component1,
+  },
+  data () {
+    return {
+      original: 'original default',
+    }
+  },
+  methods: {
+    changeOriginal () {
+      this.original = 'original new'
+    },
+    changeContext () {
+      this.$_context.Component1.prop1 = 'context root new'
+    }
   }
 }
 </script>
