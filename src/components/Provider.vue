@@ -1,15 +1,11 @@
 <script>
 import isArray from 'lodash/isArray'
 import mergeWith from 'lodash/mergeWith'
+import { injectContextMixin } from '../context'
 
 export default {
   name: 'Provider',
-  inject: {
-    _$context: {
-      from: 'vaContext',
-      default: () => { },
-    },
-  },
+  mixins: [injectContextMixin],
   props: {
     context: {
       type: Object,
@@ -17,15 +13,15 @@ export default {
     },
   },
   provide () {
-    function customizer (object, other) {
-      if (isArray(other)) {
-        return other
+    function customizer (object) {
+      if (isArray(object)) {
+        return object
       }
     }
 
-    const newContext = mergeWith(this._$context, this.context, customizer)
+    const mergedContext = mergeWith(this.context, this.$_context || this.$_rootContext, customizer)
 
-    return { 'vaContext': newContext }
+    return { '$_localContext': mergedContext }
   },
   render () {
     return this.$slots.default || null

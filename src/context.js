@@ -1,30 +1,41 @@
 import Vue from 'vue'
 
-Vue.prototype.$_context = Vue.observable({
+Vue.prototype.$_rootContext = Vue.observable({
   all: 'all',
   Component1: {
     prop1: 'context root default'
   }
 })
 
+export const injectContextMixin = {
+  inject: {
+    $_localContext: {
+      from: '$_localContext',
+      default: () => ({}),
+    },
+  },
+}
+
 export const createContextMixin = () => {
-  let $ctx = function () {
-    const { $options, $props, $_context } = this
+  let $_ctx = function () {
+    const { $options, $props, $_rootContext, $_localContext } = this
     return new Proxy({}, {
       get (obj, prop) {
         return getValue()
 
         function getValue () {
           const originalValue = $options.propsData[prop]
-          const rootContextValue = $_context[$options.name] && $_context[$options.name][prop]
+          const localContextValue = $_localContext[$options.name] && $_localContext[$options.name][prop]
+          const rootContextValue = $_rootContext[$options.name] && $_rootContext[$options.name][prop]
           const originalOrDefault = $props[prop]
-          const computed = originalValue || rootContextValue || originalOrDefault
+          const computed = originalValue || localContextValue || rootContextValue || originalOrDefault
 
           return {
             originalValue,
             rootContextValue,
             originalOrDefault,
-            computed
+            localContextValue,
+            computed,
           }
         }
       }
@@ -32,8 +43,9 @@ export const createContextMixin = () => {
   }
 
   return {
+    mixins: [injectContextMixin],
     computed: {
-      $ctx
+      $_ctx
     }
   }
 }

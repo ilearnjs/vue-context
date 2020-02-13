@@ -1,5 +1,5 @@
 <template>
-  <div>{{ $ctx.prop1 }}</div>
+  <pre>$_ctx.prop1 = {{ $_ctx.prop1 }}</pre>
 </template>
 
 <script>
