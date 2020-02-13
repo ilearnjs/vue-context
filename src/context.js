@@ -16,36 +16,33 @@ export const injectContextMixin = {
   },
 }
 
-export const createContextMixin = () => {
-  let $_ctx = function () {
-    const { $options, $props, $_rootContext, $_localContext } = this
-    return new Proxy({}, {
-      get (obj, prop) {
-        return getValue()
+export const createContextMixin = (props) => {
+  let computed = {}
 
-        function getValue () {
-          const originalValue = $options.propsData[prop]
-          const localContextValue = $_localContext[$options.name] && $_localContext[$options.name][prop]
-          const rootContextValue = $_rootContext[$options.name] && $_rootContext[$options.name][prop]
-          const originalOrDefault = $props[prop]
-          const computed = originalValue || localContextValue || rootContextValue || originalOrDefault
+  Object.keys(props).forEach(key => {
+    computed[`c_${key}`] = function () {
+      console.log('called')
+      const { $options, $props, $_rootContext, $_localContext } = this
+      const originalValue = $options.propsData[key]
+      const localContextValue = $_localContext[$options.name] && $_localContext[$options.name][key]
+      const rootContextValue = $_rootContext[$options.name] && $_rootContext[$options.name][key]
+      const originalOrDefault = $props[key]
+      const computed = originalValue || localContextValue || rootContextValue || originalOrDefault
 
-          return {
-            originalValue,
-            rootContextValue,
-            originalOrDefault,
-            localContextValue,
-            computed,
-          }
-        }
+      return {
+        originalValue,
+        rootContextValue,
+        originalOrDefault,
+        localContextValue,
+        computed,
       }
-    })
-  }
+    }
+  })
 
   return {
     mixins: [injectContextMixin],
     computed: {
-      $_ctx
+      ...computed
     }
   }
 }
